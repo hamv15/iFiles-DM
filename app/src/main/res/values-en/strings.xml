@@ -2,4 +2,5 @@
 <resources>
     <string name="app_name">iFiles DM</string>
     <string name="student">Id: %1$s, Name: %2$s</string>
+    <string name="car">Id: %1$s, marca: %2$s, modelo: %3$s, año: %4$s, Número de serie: %5$s</string>
 </resources>
