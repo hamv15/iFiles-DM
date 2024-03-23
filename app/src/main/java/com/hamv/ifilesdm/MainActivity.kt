@@ -4,17 +4,27 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import com.hamv.ifilesdm.databinding.ActivityMainBinding
+import com.hamv.ifilesdm.model.Student
+import org.simpleframework.xml.core.Persister
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.io.StringWriter
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+
+    //Para poder serializar xml
+    private  lateinit var  serializer: Persister
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        //Instanciado el serializador de xml
+        serializer = Persister()
 
 
     }
@@ -22,20 +32,29 @@ class MainActivity : AppCompatActivity() {
     fun clickSave(view: View) {
         view.hideKeyboard()
         if (binding.tietText.text.toString().isNotEmpty()){
-            //Codificando a bytes la cadena de texto a almacenar
-            val bytesToSave = binding.tietText.text.toString().encodeToByteArray()
+
+            //Generar objeto student
+            val student = Student(name = binding.tietText.text.toString())
+
+            //Creamos un escritor para el xml
+            val writer = StringWriter()
+
+            //Serializamos el objeto a XML
+            serializer.write(student, writer)
+
+            //Obtenemos el xml como cadena
+            val xmlString =writer.toString()
+
+            val bytesToSave = xmlString.encodeToByteArray()
+
             try {
                 val file = File(filesDir, "mi_archivo.txt")
                 if (!file.exists()){
                     file.createNewFile()
                 }
-                val fos = FileOutputStream(file, true)
-                fos.write(bytesToSave)
-                fos.close()
 
                 //Otra opcion
-                //file.writeBytes(bytesToSave)
-                //file.appendBytes(bytesToSave)
+                file.writeBytes(bytesToSave)
 
                 sbMessage(
                     binding.clRoot,
@@ -60,12 +79,10 @@ class MainActivity : AppCompatActivity() {
         try {
             val file = File(filesDir, "mi_archivo.txt")
             if (file.exists()){
-                /*val fis = FileInputStream(file)
-                val content = fis.readBytes()
-                binding.tvContent.text = content.decodeToString()
-                fis.close()*/
+                val xmlString = file.readBytes().decodeToString()
 
-                binding.tvContent.text = file.readBytes().decodeToString()
+                val student = serializer.read(Student::class.java, xmlString)
+                binding.tvContent.text = getString(R.string.student, student.id.toString(), student.name)
 
             }else{
                 sbMessage(

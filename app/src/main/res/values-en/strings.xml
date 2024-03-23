@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">iFiles DM</string>
+    <string name="student">Id: %1$s, Name: %2$s</string>
+</resources>
